@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.aleal.hotels.model.HotelRooms;
 import com.aleal.hotels.model.Room;
+import com.aleal.hotels.services.client.RoomsFeignClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,8 @@ public class HotelServiceImpl implements IHotelService {
 	private IHotelDao hotelDao;
 	@Autowired
 	private RestClient restClient;
+	@Autowired
+	private RoomsFeignClient roomsFeignClient;
 
 	@Override
 	public List<Hotel> search() {
@@ -32,12 +35,17 @@ public class HotelServiceImpl implements IHotelService {
 		HotelRooms response = new HotelRooms();
 		Optional<Hotel> hotel = hotelDao.findById(hotelId);
 
-		List<Room> rooms = Objects.requireNonNull(restClient.get()
-                        .uri(uriBuilder -> uriBuilder.path("http://localhost:8081/rooms/{id}").build(hotelId))
+		String uri = "http://localhost:8081/rooms/" + hotelId;
+
+		// Consumo de endpoint con RestClient
+		/*List<Room> rooms = Objects.requireNonNull(restClient.get()
+                        .uri(uri)
                         .retrieve()
                         .body(new ParameterizedTypeReference<List<Room>>() {
                         }))
-				.stream().toList();
+				.stream().toList();*/
+
+		List<Room> rooms = roomsFeignClient.searchByHotelId(hotelId);
 
 		response.setHotelId(hotel.get().getHotelId());
 		response.setHotelName(hotel.get().getHotelName());
