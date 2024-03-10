@@ -9,6 +9,7 @@ public interface IHotelService {
 	
 	List<Hotel> search();
 	HotelRooms searchHotelById(long hotelId);
+	HotelRooms searchHotelByIdWithoutRooms(long hotelId);
 	
 
 }
