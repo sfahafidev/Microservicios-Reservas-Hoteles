@@ -32,8 +32,8 @@ public class HotelController {
 	}
 
 	@GetMapping("hotels/{hotelId}")
-	//@CircuitBreaker(name = "searchHotelByIdSupportCB", fallbackMethod = "searchHotelByIdAlternative")
-	@Retry(name = "searchHotelByIdSupportRetry", fallbackMethod = "searchHotelByIdAlternative")
+	@CircuitBreaker(name = "searchHotelByIdSupportCB", fallbackMethod = "searchHotelByIdAlternative")
+	//@Retry(name = "searchHotelByIdSupportRetry", fallbackMethod = "searchHotelByIdAlternative")
 	public HotelRooms searchHotelById(@PathVariable long hotelId){
 
 		return this.service.searchHotelById(hotelId);

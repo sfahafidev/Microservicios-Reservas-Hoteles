@@ -11,7 +11,7 @@ import java.util.List;
 @FeignClient("rooms") //Nombre del microservicio a consumir
 public interface RoomsFeignClient {
 
-    @RequestMapping(method = RequestMethod.GET, value = "roo/{id}", consumes = "application/json")
+    @RequestMapping(method = RequestMethod.GET, value = "rooms/{id}", consumes = "application/json")
     public List<Room> searchByHotelId(@PathVariable long id);
 
 }
