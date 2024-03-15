@@ -1,5 +1,13 @@
 services:
 
+  zipkin:
+    image: openzipkin/zipkin
+    mem_limit: 800m
+    ports:
+      - "9411:9411"
+    networks:
+      - sfahafi-network
+
   configserver:
     image: sfahafi/configserver:latest
     mem_limit: 800m
@@ -7,6 +15,11 @@ services:
       - "8085:8085"
     networks:
       - sfahafi-network
+    depends_on:
+      - zipkin
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
 
   eurekaserver:
     image: sfahafi/eurekaserver:latest
@@ -26,6 +39,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: default
       SPRING_CONFIG_IMPORT: configserver:http://configserver:8085/
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
 
   hotels:
     image: sfahafi/hotels:latest
@@ -47,6 +61,7 @@ services:
       SPRING_PROFILES_ACTIVE: default
       SPRING_CONFIG_IMPORT: configserver:http://configserver:8085/
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8065/eureka/
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
 
   rooms:
     image: sfahafi/rooms:latest
@@ -68,6 +83,7 @@ services:
       SPRING_PROFILES_ACTIVE: default
       SPRING_CONFIG_IMPORT: configserver:http://configserver:8085/
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8065/eureka/
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
 
   reservations:
     image: sfahafi/reservations:latest
@@ -89,6 +105,32 @@ services:
       SPRING_PROFILES_ACTIVE: default
       SPRING_CONFIG_IMPORT: configserver:http://configserver:8085/
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8065/eureka/
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+
+  gatewayserver:
+    image: sfahafi/gatewayserver:latest
+    mem_limit: 800m
+    ports:
+      - "8066:8066"
+    networks:
+      - sfahafi-network
+    depends_on:
+      - configserver
+      - eurekaserver
+      - hotels
+      - rooms
+      - reservations
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 80s
+        max_attempts: 5
+        window: 180s
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8085/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8065/eureka/
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     
 networks:
   sfahafi-network:

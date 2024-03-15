@@ -7,6 +7,7 @@ import com.aleal.rooms.model.PropertiesRooms;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.aleal.rooms.model.Room;
 import com.aleal.rooms.services.IRoomService;
 
+@Log4j2
 @RestController
 public class RoomController {
 
@@ -25,12 +27,13 @@ public class RoomController {
 	
 	@GetMapping("rooms")
 	public List<Room> search(){
-		return (List<Room>) this.service.search();	
+		log.info("inicio de método search");
+		return (List<Room>) this.service.search();
 	}
 
 	@GetMapping("rooms/{id}")
 	public List<Room> searchByHotelId(@PathVariable long id){
-
+		log.info("inicio de método searchByHotelId");
 		return (List<Room>) this.service.searchRoomByHotelId(id);
 	}
 
